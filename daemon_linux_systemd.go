@@ -248,10 +248,9 @@ var systemDConfig = `[Unit]
 Description={{.Description}}
 
 [Service]
-PIDFile=/var/run/{{.Name}}.pid
-ExecStartPre=/bin/rm -f /var/run/{{.Name}}.pid
 ExecStart={{.Path}}
-Restart=on-abort
+Restart=always
+RestartSec=1
 
 [Install]
 WantedBy=multi-user.target
