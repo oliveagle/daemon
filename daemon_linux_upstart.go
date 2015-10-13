@@ -11,6 +11,8 @@ import (
 	"os/exec"
 	"regexp"
 	"text/template"
+    "strings"
+    "github.com/oliveagle/hickwall/utils"
 )
 
 // upstartRecord - standard record (struct) for linux upstart version of daemon package
@@ -114,8 +116,28 @@ func (linux *upstartRecord) Install() (string, error) {
 	return linux.InstallFromPath(execPatch)
 }
 
+func (linux *upstartRecord) stop_only() (bool, error) {
+    cmd := exec.Command("initctl", "stop", linux.name)
+    output, err := cmd.CombinedOutput()
+    line := fmt.Sprintf("%v: %s", err, string(output))
+    if err != nil {
+        if strings.Contains(line, "Unknown instance") {
+            return true, nil
+        } else {
+            return false, fmt.Errorf("unknown error: %s", line)
+        }
+    } else {
+        if strings.Contains(line, "stop/waiting") {
+            return true, nil
+        } else {
+            return false, fmt.Errorf("unknown output: %v", line)
+        }
+    }
+}
+
 // Remove the service
 func (linux *upstartRecord) Remove() (string, error) {
+    defer utils.Recover_and_log()
 	removeAction := "Removing " + linux.description + ":"
 
 	if checkPrivileges() == false {
@@ -126,15 +148,18 @@ func (linux *upstartRecord) Remove() (string, error) {
 		return removeAction + failed, errors.New(linux.description + " is not installed")
 	}
 
-	if err := exec.Command("initctl", "stop", linux.name).Run(); err != nil {
-		return removeAction + failed, err
-	}
+    if _,err := linux.stop_only(); err != nil {
+    return removeAction + failed, err
+    }
+//	if err := exec.Command("initctl", "stop", linux.name).Run(); err != nil {
+//		return removeAction + failed, err
+//	}
 
 	if err := os.Remove(linux.servicePath()); err != nil {
 		return removeAction + failed, err
 	}
 
-	if err := exec.Command("initctl", "reload-configuration").Run(); err != nil {
+    if err := exec.Command("initctl", "reload-configuration").Run(); err != nil {
 		return removeAction + failed, err
 	}
 
@@ -210,6 +235,6 @@ start on runlevel [2345]
 stop on runlevel [!2345]
 
 respawn
+pre-start exec sleep 1
 exec {{.Path}}
-post-stop exec sleep 1
 `

@@ -5,7 +5,9 @@ package daemon
 import (
 	"os"
 	"os/exec"
-	"os/user"
+//	"os/user"
+//    "fmt"
+    "strconv"
 )
 
 // Service constants
@@ -49,9 +51,27 @@ func executablePath(name string) (string, error) {
 
 // Check root rights to use system service
 func checkPrivileges() bool {
-
-	if user, err := user.Current(); err == nil && user.Gid == "0" {
-		return true
-	}
+    // on linux, user depends on cgo. if cgo disabled. user.Current will not work.
+//    usr, err := user.Current()
+//    fmt.Printf("checkPrivileges: err: %v, user: %+v\n", err, usr)
+//	if usr, err := user.Current(); err == nil && usr.Gid == "0" {
+//		return true
+//	}
+    if gid, err := get_gid(); err == nil && gid == 0 {
+        return true
+    }
 	return false
+}
+
+func get_gid() (int, error) {
+    gid := -1
+    err := ReadCommand(func(line string) error{
+        if v, err := strconv.Atoi(line); err == nil {
+            gid = v
+            return nil
+        } else {
+            return err
+        }
+    }, "id", "-g")
+    return gid, err
 }
