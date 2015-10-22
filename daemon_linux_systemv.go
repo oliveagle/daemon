@@ -16,6 +16,7 @@ import (
 // systemVRecord - standard record (struct) for linux systemV version of daemon package
 type systemVRecord struct {
 	name        string
+    path        string
 	description string
 }
 
@@ -114,7 +115,7 @@ func (linux *systemVRecord) InstallFromPath(thePath string) (string, error) {
 func (linux *systemVRecord) Install() (string, error) {
 	installAction := "Install " + linux.description + ":"
 
-	execPatch, err := executablePath(linux.name)
+	execPatch, err := executablePath(linux.path)
 	if err != nil {
 		return installAction + failed, err
 	}

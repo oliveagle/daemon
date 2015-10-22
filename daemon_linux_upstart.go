@@ -18,6 +18,7 @@ import (
 // upstartRecord - standard record (struct) for linux upstart version of daemon package
 type upstartRecord struct {
 	name        string
+    path        string
 	description string
 }
 
@@ -98,10 +99,6 @@ func (linux *upstartRecord) InstallFromPath(thePath string) (string, error) {
 		return installAction + failed, err
 	}
 
-	// if err := exec.Command("initctl", "enable", linux.name+".service").Run(); err != nil {
-	// 	return installAction + failed, err
-	// }
-
 	return installAction + success, nil
 }
 
@@ -109,11 +106,11 @@ func (linux *upstartRecord) InstallFromPath(thePath string) (string, error) {
 func (linux *upstartRecord) Install() (string, error) {
 	installAction := "Install " + linux.description + ":"
 
-	execPatch, err := executablePath(linux.name)
+	execPath, err := executablePath(linux.path)
 	if err != nil {
 		return installAction + failed, err
 	}
-	return linux.InstallFromPath(execPatch)
+	return linux.InstallFromPath(execPath)
 }
 
 func (linux *upstartRecord) stop_only() (bool, error) {

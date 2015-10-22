@@ -17,12 +17,13 @@ import (
 // windowsRecord - standard record (struct) for windows version of daemon package
 type windowsRecord struct {
 	name        string
+    path        string
 	description string
 }
 
-func newDaemon(name, description string) (Daemon, error) {
+func newDaemon(name, path, description string) (Daemon, error) {
 
-	return &windowsRecord{name, description}, nil
+	return &windowsRecord{name, path, description}, nil
 }
 
 // Install the service

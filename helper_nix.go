@@ -5,8 +5,6 @@ package daemon
 import (
 	"os"
 	"os/exec"
-//	"os/user"
-//    "fmt"
     "strconv"
 )
 
@@ -38,14 +36,14 @@ func IsExecutable(path string) (bool, error) {
 }
 
 // Lookup path for executable file
-func executablePath(name string) (string, error) {
-	if path, err := exec.LookPath(name); err == nil {
+func executablePath(p string) (string, error) {
+	if path, err := exec.LookPath(p); err == nil {
 		_, err := os.Stat(path)
 		if os.IsNotExist(err) {
 			return execPath()
 		}
 		return path, nil
-	}
+    }
 	return execPath()
 }
 

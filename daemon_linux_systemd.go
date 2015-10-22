@@ -16,6 +16,7 @@ import (
 // systemDRecord - standard record (struct) for linux systemD version of daemon package
 type systemDRecord struct {
 	name        string
+    path        string
 	description string
 }
 
@@ -107,56 +108,11 @@ func (linux *systemDRecord) InstallFromPath(thePath string) (string, error) {
 func (linux *systemDRecord) Install() (string, error) {
 	installAction := "Install " + linux.description + ":"
 
-	execPatch, err := executablePath(linux.name)
+	execPath, err := executablePath(linux.path)
 	if err != nil {
 		return installAction + failed, err
 	}
-	return linux.InstallFromPath(execPatch)
-
-	// if checkPrivileges() == false {
-	// 	return installAction + failed, errors.New(rootPrivileges)
-	// }
-
-	// srvPath := linux.servicePath()
-
-	// if linux.checkInstalled() == true {
-	// 	return installAction + failed, errors.New(linux.description + " already installed")
-	// }
-
-	// file, err := os.Create(srvPath)
-	// if err != nil {
-	// 	return installAction + failed, err
-	// }
-	// defer file.Close()
-
-	// execPatch, err := executablePath(linux.name)
-	// if err != nil {
-	// 	return installAction + failed, err
-	// }
-
-	// templ, err := template.New("systemDConfig").Parse(systemDConfig)
-	// if err != nil {
-	// 	return installAction + failed, err
-	// }
-
-	// if err := templ.Execute(
-	// 	file,
-	// 	&struct {
-	// 		Name, Description, Path string
-	// 	}{linux.name, linux.description, execPatch},
-	// ); err != nil {
-	// 	return installAction + failed, err
-	// }
-
-	// if err := exec.Command("systemctl", "daemon-reload").Run(); err != nil {
-	// 	return installAction + failed, err
-	// }
-
-	// if err := exec.Command("systemctl", "enable", linux.name+".service").Run(); err != nil {
-	// 	return installAction + failed, err
-	// }
-
-	// return installAction + success, nil
+	return linux.InstallFromPath(execPath)
 }
 
 // Remove the service

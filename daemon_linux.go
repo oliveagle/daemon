@@ -11,26 +11,19 @@ import (
 )
 
 // Get the daemon properly
-func newDaemon(name, description string) (Daemon, error) {
+func newDaemon(name, path, description string) (Daemon, error) {
 
 	if _, err := os.Stat("/run/systemd/system"); err == nil {
-		return &systemDRecord{name, description}, nil
+		return &systemDRecord{name, path, description}, nil
 	}
-
-	// ID, _, _, _ := goos.GetOSVersion()
-
-	// if ID == "ubuntu" {
-	// 	// do ubuntu things
-	// 	return &ubuntuSysVRecord{name, description}, nil
-	// }
 
 	if _, err := os.Stat("/etc/init"); err == nil {
 		if _, err := os.Stat("/sbin/initctl"); err == nil {
-			return &upstartRecord{name, description}, nil
+			return &upstartRecord{name, path, description}, nil
 		}
 	}
 
-	return &systemVRecord{name, description}, nil
+	return &systemVRecord{name, path, description}, nil
 }
 
 // Get executable path
